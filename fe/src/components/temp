@@ -1,0 +1,84 @@
+import React from "react";
+import styled from "styled-components";
+import Footer from "./Footer";
+import Header from "./Header";
+import logo from "../assets/logo2.png"; // Make sure this path is correct
+
+// Styled components for the layout
+const AboutSection = styled.section`
+  padding: 4rem 0;
+  text-align: center;
+`;
+
+const Title = styled.h1`
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #007bff;
+`;
+
+const Subtitle = styled.p`
+  font-size: 1.2rem;
+  color: #666;
+`;
+
+const SpinningCircle = styled.div`
+  margin: 4rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const CircleText = styled.svg`
+  max-width: 200px;
+  max-height: 200px;
+  animation: spin 10s linear infinite;
+  text {
+    fill: #007bff;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+  
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+// React components for the page sections
+const About = () => (
+  <>
+    <Header></Header>
+    <AboutSection>
+      <div className="container">
+        <Subtitle>We are Sprout Learning</Subtitle>
+        <Title>About Sprout Learning</Title>
+      </div>
+    </AboutSection>
+    <SpinningCircle>
+      <CircleText viewBox="0 0 460 460">
+        <defs>
+          <path
+            id="circle-button-text"
+            d="M230,380 a150,150 0 0,1 0,-300a150,150 0 0,1 0,300Z"
+          />
+        </defs>
+        <text>
+          <textPath href="#circle-button-text">
+            Critical Thinking — Innovation — Empowerment —
+          </textPath>
+        </text>
+      </CircleText>
+    </SpinningCircle>
+    <Footer></Footer>
+  </>
+);
+
+// Main AboutPage Component
+const AboutPage = () => (
+  <div>
+    <About />
+  </div>
+);
+
+export default AboutPage;
