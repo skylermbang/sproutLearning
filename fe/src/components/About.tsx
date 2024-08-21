@@ -209,20 +209,20 @@ const Team = [
   {
     Picture: Adit,
     name: "Adit",
-    desc: "In Charge of Operating Sprout Learning",
-    Expertise: "CEO",
+    desc: "Expert in business relations and international politics, driving strategic operations at Sprout Learning.",
+    Expertise: "Lead of Operations and Strategy ",
   },
   {
     Picture: Guo,
     name: "Guo Cheng",
-    desc: "TESOL-Certified English Educator & Passionate AI and Backend Software Engineer",
+    desc: "PTE/ILETS English Educator & Passionate AI and Backend Software Engineer",
     Expertise: "Software Engineer",
   },
   {
     Picture: Jacky,
     name: "Guo Cheng",
-    desc: "In Charge of Operating Sprout Learning",
-    Expertise: "CEO",
+    desc: "Experienced in deucational PPP(Public-Private-Parnership) projects and consulting ,now leading strategic marketing initiative",
+    Expertise: "Head of Marketing and Strategy",
   },
   // Add more team members here...
 ];
