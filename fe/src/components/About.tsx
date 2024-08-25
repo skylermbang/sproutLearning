@@ -18,18 +18,20 @@ interface SectionContainerProps {
 const AboutSection = styled.section`
   padding: 4rem 0;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const Title = styled.h1`
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  color: darkgreen
+  color: darkgreen;
+  text-align: center;
+
 `;
 
-const Subtitle = styled.p`
-  font-size: 1.2rem;
-  color: #666;
-`;
+
 
 const SectionContainer = styled.div<SectionContainerProps>`
   display: flex;
@@ -102,7 +104,6 @@ const CircleText = styled.svg`
 const Partner = styled.div`
 width: 200px;
 height: 200px;
-background-color: aqua;
 background-image: url(${BDD});
   background-size: contain;
   background-repeat: no-repeat;
@@ -226,7 +227,6 @@ const Team = [
   },
   // Add more team members here...
 ];
-
 // Main AboutPage Component
 const AboutPage = () => (
   <div>
@@ -253,7 +253,7 @@ const AboutPage = () => (
       </CircleText>
     </SpinningCircle>
     <SectionContainer >
-      <Title>About Sprout Learning</Title>
+     
       <p>
         At Sprout Learning, we are dedicated to shaping tomorrow's leaders by nurturing creativity 
         and critical thinking in today's students. Through our innovative, game-based learning 

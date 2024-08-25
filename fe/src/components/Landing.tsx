@@ -12,11 +12,13 @@ const images = [
   { url: pic3 }
 ];
 
-
 const SliderWrapper = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
+  max-width: 1200px; /* Adjusted to match the overall container size */
+  margin: 0 auto; /* Centering the slider */
 `;
 
 const Container3 = styled.div`
@@ -26,10 +28,11 @@ const Container3 = styled.div`
   padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 15px;
-  margin: 20px auto;
   max-width: 1200px;
+  margin: 20px auto; /* Center the container horizontally */
   color: #e5dada;
   font-size: 1.2rem;
+  color: black;
 
   @media (max-width: 768px) {
     padding: 10px;
@@ -43,7 +46,7 @@ const Container2 = styled.div`
   padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 15px;
-  background-color: #f0e0b6;
+  background-color: #ffffff;
   margin: 20px auto;
   max-width: 1200px;
   color: black;
@@ -85,7 +88,7 @@ const SectionTitle = styled.div`
     line-height: 1.5;
 
     .text-primary {
-      color: #007bff; /* Primary color */
+      color: darkgreen;
     }
 
     .loop-text {
@@ -93,23 +96,18 @@ const SectionTitle = styled.div`
 
       span {
         display: inline-block;
-        margin-right: 5px;
         color: inherit;
-        text-decoration: underline;
+        text-decoration: bold;
         animation: loop 10s linear infinite;
-
         &:nth-child(1) {
           animation-delay: 0s;
         }
-
         &:nth-child(2) {
           animation-delay: 2.5s;
         }
-
         &:nth-child(3) {
           animation-delay: 5s;
         }
-
         &:nth-child(4) {
           animation-delay: 7.5s;
         }
@@ -128,43 +126,40 @@ const SectionTitle = styled.div`
 const Button = styled.a`
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: darkgreen;
   color: white;
   border-radius: 5px;
   text-decoration: none;
   font-weight: bold;
 
   &:hover {
-    background-color: #0056b3;
+    background-color: darkgreen;
   }
 `;
 
 function Landing() {
   return (
     <div>
-      
       <Container3>
-      <h1>We are Sprout Learning, dedicated to nurturing young minds by fostering connections and unlocking their full potential. Through innovative learning experiences, we empower children to explore, grow, and thrive in a connected world.</h1>
+        <h1>We are Sprout Learning, dedicated to nurturing young minds by fostering connections and unlocking their full potential. Through innovative learning experiences, we empower children to explore, grow, and thrive in a connected world.</h1>
       </Container3>
+      
       <Container2>
         <Photo src={pic4} alt="Pic4" />
-        <h1> Going Around the World with Sprout Learning</h1>
+        <h1>Going Around the World with Sprout Learning</h1>
       </Container2>
       
       <Container3>
         <SliderWrapper>
-
           <SimpleImageSlider
-            width="80%"
+            width={800} /* Adjust width directly */
             height={504}
             images={images}
             showBullets={true}
             showNavs={true}
           />
         </SliderWrapper>
-
       </Container3>
-
 
       <Container>
         <Row>
@@ -172,8 +167,8 @@ function Landing() {
           <SectionTitle>
             <h2 className="title">Let’s make a wonderful <br />
             <span className="text-primary loop-text text-underline">
-                <span> Build a brilliant mind </span>
-                <span> and friends</span>
+                <span>Build a brilliant mind</span>
+                <span>and friends</span>
             </span> together!
             </h2>
           </SectionTitle>
