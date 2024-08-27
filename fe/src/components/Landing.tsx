@@ -138,6 +138,10 @@ const Button = styled.a`
 `;
 
 function Landing() {
+const handleClick = () => {
+  alert("Updating Soon...")
+};
+  
   return (
     <div>
       <Container3>
@@ -172,7 +176,7 @@ function Landing() {
             </span> together!
             </h2>
           </SectionTitle>
-          <Button href="contact.html">Get in touch!</Button>
+          <Button onClick={handleClick}>Get in Touch</Button>
         </Row>
       </Container>
     </div>

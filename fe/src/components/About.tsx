@@ -221,8 +221,8 @@ const Team = [
   },
   {
     Picture: Jacky,
-    name: "Guo Cheng",
-    desc: "Experienced in deucational PPP(Public-Private-Parnership) projects and consulting ,now leading strategic marketing initiative",
+    name: "Jacky Chiakang Ni",
+    desc: "Experienced in eucational PPP(Public-Private-Parnership) projects and consulting ,now leading strategic marketing initiative",
     Expertise: "Head of Marketing and Strategy",
   },
   // Add more team members here...
