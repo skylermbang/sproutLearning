@@ -2,6 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
 import logo3 from '../assets/logo3.png';
+import useUser from '../hooks/useUser';
+
+// Define the custom props for the StyledLink
+interface StyledLinkProps {
+  isActive: boolean;
+}
 
 const Logo = styled.img`
   height: 90px;
@@ -22,7 +28,7 @@ const TabContainer = styled.div`
   width: 50%;
 `;
 
-const StyledLink = styled(Link)<{ isActive: boolean }>`
+const StyledLink = styled(Link)<StyledLinkProps>`
   background: none;
   border: none;
   font-size: 1rem;
@@ -36,8 +42,16 @@ const StyledLink = styled(Link)<{ isActive: boolean }>`
   }
 `;
 
-const Header: React.FC = () => {
+const Header = () => {
   const location = useLocation();
+
+  // Assume userId is stored in a state or context; here, it's hardcoded for demonstration.
+  const userId = 'bang618'; // Replace this with actual logic to retrieve the logged-in user's ID.
+  const { data: user, isLoading, error } = useUser(userId);
+  //console.log(user.userId)
+ 
+  // Conditional rendering based on user authentication status
+  const isLoggedIn = !!user;
 
   return (
     <HeaderContainer>
@@ -47,9 +61,16 @@ const Header: React.FC = () => {
         <StyledLink to="/about" isActive={location.pathname === '/about'}>About</StyledLink>
         <StyledLink to="/game" isActive={location.pathname === '/game'}>Game</StyledLink>
         <StyledLink to="/curriculum" isActive={location.pathname === '/curriculum'}>Curriculum</StyledLink>
+        {isLoggedIn ? (
+          <StyledLink to="/profile" isActive={location.pathname === '/profile'}>Profile</StyledLink>
+        ) : (
+          <>
+            <StyledLink to="/signup" isActive={location.pathname === '/singup'}>Login/Join</StyledLink>
+          </>
+        )}
       </TabContainer>
     </HeaderContainer>
   );
-}
+};
 
 export default Header;

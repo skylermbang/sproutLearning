@@ -4,6 +4,7 @@ import Home from './components/Home';
 import About from './components/About';
 import Curriculum from './components/Curriculum';
 import Game from './components/Game';
+import Signup from './components/Signup';
 
 interface RouterProps {
   toggleTheme: () => void;
@@ -17,6 +18,7 @@ const Router = ({ toggleTheme }: RouterProps) => {
         <Route path="/about" element={<About />} />
         <Route path="/game" element={<Game />} />
         <Route path="/curriculum" element={<Curriculum />} />
+        <Route path="/signup" element={<Signup/>} />
       </Routes>
     </BrowserRouter>
   );

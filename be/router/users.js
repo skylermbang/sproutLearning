@@ -13,6 +13,7 @@ const authMiddleware = require('../middlewares/auth-middleware')
 
 
 router.post('/signUp', async (req, res, next) => {
+    console.log( "SingUP API")
     try {
         const { userId, userNickname, password, confirmPassword , email} = req.body
     
@@ -36,6 +37,7 @@ router.post('/signUp', async (req, res, next) => {
             });
         }
         if (!regUserNickname.test(userNickname)) {
+            console.log( "no space please")
             return res.status(400).send({
                 errorMessage: 'Wrong NickName format. NickName must start with a letter and be 6-20 characters long.'
             });
@@ -48,7 +50,7 @@ router.post('/signUp', async (req, res, next) => {
 
         const salt = bcrypt.genSaltSync(setRounds);
         const hashedPassword = bcrypt.hashSync(password, salt);
-        const user = new User({ userId, password: hashedPassword })
+        const user = new User({ userId,userNickname, email, password: hashedPassword })
         await user.save()
         res.status(201).send({ result: "sucess" , msg: "SignUp Successful" })
     } catch (err) {
@@ -107,12 +109,20 @@ function createJwtToken(userId) {
     return jwt.sign({ userId }, process.env.SECRET_KEY || "2aibdoicndie777", { expiresIn: '24h' });
 }
 
-// router.get("/me", authMiddleware, async (req, res) => {
-//     const { user } = res.locals;
-//     res.send({
-//       user,
-//     });
-// });
+router.get('/:userId', async (req, res) => {
+    const { userId } = req.params; // Get userId from request parameters
+    try {
+        const user = await User.findOne({ userId: userId }); // Find user by userId in the database
+        if (!user) {
+            return res.status(404).send({ message: 'User not found' });
+        }
+      
+        res.status(200).send(user); // Send the user details as response
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
+});
 
 router.get("/me", authMiddleware, async (req, res) => {
     const { user } = res.locals;
