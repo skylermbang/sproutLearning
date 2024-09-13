@@ -154,12 +154,17 @@ export default function Auth() {
   // Mutation for SignIn
   const loginMutation = useMutation(
     async (loginUser: { userId: string; password: string }) => {
-      const response = await axios.post('http://localhost:5002/api/users/signIn', loginUser);
+      const response = await axios.post(
+        'http://localhost:5002/api/users/signIn', 
+        loginUser,
+        { withCredentials: true }  // This ensures cookies are included in the request
+      );
       return response.data;
     },
     {
       onSuccess: (data) => {
         setSuccessMessage('Login Successful!');
+        localStorage.setItem('authToken', data.token);
         navigate('/'); // Redirect to homepage after successful login
       },
       onError: (error: any) => {

@@ -44,14 +44,9 @@ const StyledLink = styled(Link)<StyledLinkProps>`
 
 const Header = () => {
   const location = useLocation();
-
-  // Assume userId is stored in a state or context; here, it's hardcoded for demonstration.
-  const userId = 'bang618'; // Replace this with actual logic to retrieve the logged-in user's ID.
-  const { data: user, isLoading, error } = useUser(userId);
-  //console.log(user.userId)
- 
+  const { data: user, isLoading, error } = useUser();
   // Conditional rendering based on user authentication status
-  const isLoggedIn = !!user;
+  const isLoggedIn = !!user && !isLoading && !error;
 
   return (
     <HeaderContainer>
