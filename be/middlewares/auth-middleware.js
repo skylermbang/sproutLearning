@@ -4,7 +4,7 @@ require('dotenv').config();
 
 module.exports = async (req, res, next) => {
   const { authorization } = req.headers;
-
+  console.log(res.cookie)
   if (!authorization) {
     return res.status(401).send({
       errorMessage: 'Login Required'
