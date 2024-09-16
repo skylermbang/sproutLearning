@@ -141,7 +141,6 @@ router.post('/signIn', async (req, res) => {
                 });
             res.status(201).send({
                 sucess: true,
-                token,
                 userId,
                 userNickname,
                 msg: "Login Successful"
