@@ -11,49 +11,107 @@ const meMiddleware=require('../middlewares/me-middleware')
 
 
 
-router.get('/me', (req, res) => {
-    console.log("Headers:", req.headers);
-    console.log("Cookies:", req.cookies);
+// router.get('/me', async(req, res) => {
+//     //console.log("Headers:", req.headers);
+//     //console.log("Cookies:", req.cookies);
 
-    // Check if cookies are present
-    if (!req.cookies || Object.keys(req.cookies).length === 0) {
-        console.log("No cookies found, trying Authorization header");
+//     // Check if cookies are present
+//     if (!req.cookies || Object.keys(req.cookies).length === 0) {
+//         console.log("No cookies found, trying Authorization header");
 
-        // If no cookies, check the Authorization header
+//         // If no cookies, check the Authorization header
+//         const authHeader = req.headers.authorization;
+//         if (!authHeader) {
+//             return res.status(401).send({ success: false, msg: 'No token provided' });
+//         }
+
+//         const token = authHeader.split(' ')[1]; // Extract the token from the header
+//         try {
+//             const decoded = jwt.verify(token, process.env.SECRET_KEY || "2aibdoicndie777"); // Verify the token
+//             //console.log("check", decoded)
+//             const user = await User.findOne({ userId: decoded.userId }); // Find user by userId in the database
+
+//             if (user) {
+//                 // Extract the required fields from the user document
+//                 const sendUser = {
+//                   userId: user.userId,
+//                   userNickname: user.userNickname,
+//                   email: user.email,
+//                   admin: user.admin,
+//                 };
+//                 //console.log(sendUser)
+//                 // Attach the selected user fields to req.user
+//                 req.user = sendUser
+//         }
+//     } catch (err) {
+//             return res.status(401).send({ success: false, msg: 'Invalid token' });
+//         }
+
+//         // Return the decoded user info from the token
+//         return res.status(200).send({
+//             success: true,
+//             user: req.user, // The user decoded from the JWT token
+//         });
+
+//     } else {
+//         // If cookies are present, handle user authentication from cookies
+//         const user = req.cookies['userId']; // Example: Assuming user info is stored in a cookie
+
+//         if (user) {
+//             // Send back user data if the cookie exists
+//             return res.status(200).send({ success: true, user });
+//         } else {
+//             return res.status(401).send({ success: false, msg: 'Unauthorized, no user cookie' });
+//         }
+//     }
+// });
+
+
+router.get('/me', async (req, res) => {
+    try {
+      let token;
+  
+      // Check if token is in cookies
+      if (req.cookies && req.cookies.authToken) {
+        token = req.cookies.authToken;
+      } else if (req.headers.authorization) {
+        // If no cookie, check the Authorization header
         const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            return res.status(401).send({ success: false, msg: 'No token provided' });
-        }
-
-        const token = authHeader.split(' ')[1]; // Extract the token from the header
-        console.log(token)
-        try {
-            const decoded = jwt.verify(token, process.env.SECRET_KEY || "2aibdoicndie777"); // Verify the token
-            console.log(decoded)
-            req.user = decoded; // Attach the decoded user to req
-        } catch (err) {
-            return res.status(401).send({ success: false, msg: 'Invalid token' });
-        }
-
-        // Return the decoded user info from the token
-        return res.status(200).send({
-            success: true,
-            user: req.user, // The user decoded from the JWT token
-        });
-
-    } else {
-        // If cookies are present, handle user authentication from cookies
-        const user = req.cookies['userId']; // Example: Assuming user info is stored in a cookie
-
-        if (user) {
-            // Send back user data if the cookie exists
-            return res.status(200).send({ success: true, user });
-        } else {
-            return res.status(401).send({ success: false, msg: 'Unauthorized, no user cookie' });
-        }
+        token = authHeader.split(' ')[1]; // Extract token from "Bearer <token>"
+      }
+  
+      if (!token) {
+        return res.status(401).send({ success: false, msg: 'Unauthorized: No token provided' });
+      }
+  
+      // Verify the token
+      const decoded = jwt.verify(token, process.env.SECRET_KEY || '2aibdoicndie777');
+  
+      // Find user by userId from the decoded token
+      const user = await User.findOne({ userId: decoded.userId });
+  
+      if (!user) {
+        return res.status(404).send({ success: false, msg: 'User not found' });
+      }
+  
+      // Extract only the fields you want to send back
+      const sendUser = {
+        userId: user.userId,
+        userNickname: user.userNickname,
+        email: user.email,
+        admin: user.admin,
+      };
+  
+      return res.status(200).send({
+        success: true,
+        user: sendUser, // Send back the user details
+      });
+  
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      return res.status(500).send({ success: false, msg: 'Internal Server Error' });
     }
-});
-
+  });
 
 
 // SingUp API - POST
