@@ -3,6 +3,8 @@ const router = express.Router()
 const Class = require("../schemas/class")
 const User = require("../schemas/users")
 const authMiddleware = require("../middlewares/auth-middleware")
+const meMiddleware=require('../middlewares/me-middleware')
+
 
 // geting all the classes
 // need paginations or only shows the upcomming classes in the future
@@ -27,23 +29,35 @@ router.get('/', async (req, res) => {
 
 
 
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', meMiddleware, async (req, res) => {
     console.log("API post class");
     const userId = res.locals.user.userId;  // User ID from the middleware
+
     try {
-        const { classId,name, date, time, location, capacity,  teacher, desc } = req.body;        
+        const { classId,name, startDate, time, location, capacity, teacher, desc } = req.body;
+
+      const classDateString = `${startDate}T${time}:00.000Z`;
+      const classDate = new Date(classDateString);
+
+      // Log the constructed date
+      console.log("Constructed Date:", classDate);
+
+      // Check if the constructed date is valid
+      if (isNaN(classDate.getTime())) {
+          throw new Error("Invalid Date");
+      }
         const newClass = await Class.create({
             classId,
             name,
-            date,
-            time,
+            date: classDate,  // Store as Date object
+            time,  // Store time as a string
             location,
             capacity,
             teacher,
             desc,
             createdBy: userId
         });
-
+        console.log("class created")
         // Respond with the newly created class
         res.status(201).json({
             success: true,
@@ -60,7 +74,6 @@ router.post('/', authMiddleware, async (req, res) => {
         });
     }
 });
-
 
 
 router.put('/:classId', authMiddleware, async (req, res) => {
