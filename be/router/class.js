@@ -36,6 +36,7 @@ router.post('/', authMiddleware, async (req, res) => {
         
         // Create a new class and associate the `createdBy` field with the userId
         const newClass = await Class.create({
+            classId,
             name,
             date,
             time,
