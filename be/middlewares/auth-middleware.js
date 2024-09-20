@@ -23,7 +23,6 @@ module.exports = async (req, res, next) => {
   try {
     // Use the secret from the environment variables
     const { userId } = jwt.verify(tokenValue, process.env.JWT_SECRET || "2aibdoicndie777");
-    console.log(userId)
     // Find the user using the decoded userId
     const user = await User.findOne({ userId }).exec();
     

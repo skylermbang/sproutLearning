@@ -1,17 +1,16 @@
 const express = require("express")
 const router = express.Router()
 const Class = require("../schemas/class")
+const User = require("../schemas/users")
 const authMiddleware = require("../middlewares/auth-middleware")
 
-
+// geting all the classes
+// need paginations or only shows the upcomming classes in the future
 router.get('/', async (req, res) => {
     console.log("API Get all the classes");
-    
     try {
-        const classList = await Class.find({});  // Fetch all classes
-        
-        // Send back the class list, even if it's empty
-        res.status(200).json({
+        const classList = await Class.find({});  
+                res.status(200).json({
             success: true,
             classes: classList
         });
@@ -32,9 +31,7 @@ router.post('/', authMiddleware, async (req, res) => {
     console.log("API post class");
     const userId = res.locals.user.userId;  // User ID from the middleware
     try {
-        const { classId,name, date, time, location, capacity,  teacher, desc } = req.body;
-        
-        // Create a new class and associate the `createdBy` field with the userId
+        const { classId,name, date, time, location, capacity,  teacher, desc } = req.body;        
         const newClass = await Class.create({
             classId,
             name,
@@ -68,8 +65,7 @@ router.post('/', authMiddleware, async (req, res) => {
 
 router.put('/:classId', authMiddleware, async (req, res) => {
     console.log("API: Update Class");
-
-    const userId = res.locals.user.userId; // Assuming your auth middleware attaches the user object
+    const userId = res.locals.user.userId; 
 
     try {
         const { classId } = req.params; // Get classId from URL
@@ -99,54 +95,63 @@ router.put('/:classId', authMiddleware, async (req, res) => {
 
 
 
-router.put("/:todoId", authMiddleware, async (req, res) => {
-    console.log(" Updating todo ")
-    const { todoId } = req.params
-    const { newContent } = req.body
-    const user_id = res.locals.user.user_id
-
-
-
+router.delete('/:classId', authMiddleware, async function (req, res) {
+    console.log("API: Delete Class");
     try {
-        console.log(todoId)
-        const isExist = await Todo.findOne({ id: todoId })
-        console.log(isExist)
-        if (isExist.userId === user_id) {
-
-            //await Todo.findOneAndUpdate({ id: todoId, content: newContent })
-            const filter = { id: todoId };
-            const update = { content: newContent };
-            let newTodo = await Todo.findOneAndUpdate(filter, update);
-            res.status(200).json({ isUpdated: true })
+        const { classId } = req.params;  // Get classId from the URL
+        const userId = res.locals.user.userId;  // Get userId from authMiddleware
+        const user = await User.findOne({ userId });
+        // Check if the user exists and is an admin
+        if (!user) {
+            return res.status(400).send({
+                success: false,
+                errorMessage: 'User not found.',
+            });
         }
-
-        else {
-
-            res.status(401).send("Wrong access")
+        if (!user.admin) {
+            return res.status(403).send({
+                success: false,
+                errorMessage: 'No permission to delete this class.',
+            });
         }
+        const isExist = await Class.findOne({ classId });
+        if (!isExist) {
+            return res.status(404).send({
+                success: false,
+                errorMessage: 'Class not found.',
+            });
+        }
+        // Delete the class
+        await Class.deleteOne({ classId });
+        res.status(200).json({ success: true, message: 'Class deleted successfully.' });
     } catch (error) {
-        res.status(401).send(error.message)
+        console.error(error);
+        res.status(500).send({ success: false, message: 'Internal Server Error' });
     }
-})
-
-
-
-router.delete('/:todoId', authMiddleware, async function (req, res) {
-    console.log("deleting todo")
-    const { todoId } = req.params
-    const user_id = res.locals.user.user_id
-    const isExist = await Todo.findOne({ id: todoId })
-    if (isExist.userId === user_id) {
-        await Todo.deleteOne({ id: todoId })
-        res.status(200).json({ isUpdated: true })
-    }
-    else {
-        res.status(401).json({ isUpdated: false })
-    }
-
 });
 
 
+router.get('/:classId', async (req, res) => {
+    console.log("API Get Specific Class Info");
+    try {
+        const { classId } = req.params; 
+        const chosenClass = await Class.findOne({classId});  
+                res.status(200).json({
+            success: true,
+            class: chosenClass
+        });
+        
+    } catch (error) {
+        console.error("Error fetching classe:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Failed to retrieve classe",
+            error: error.message  
+        });
+    }
+});
+
+//reference in the future need to make Error like this 
 router.put('/:todoId/check', authMiddleware, async function (req, res) {
     const todoId = req.params.todoId;
     const user_id = res.locals.user.user_id;
