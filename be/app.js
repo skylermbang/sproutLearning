@@ -25,11 +25,13 @@ connect();
 // Routers
 const indexRouter = require("./router/index");
 const userRouter = require("./router/users");
-const classRouter = require("./router/class")
+const classRouter = require("./router/class");
+const enrollmentRouter = require("./router/enrollment")
 
 app.use('/api', indexRouter);
 app.use('/api/users', userRouter);
 app.use('/api/classes', classRouter)
+app.use('/api/enrollments', enrollmentRouter)
 
 // Start the server
 app.listen(port, () => {

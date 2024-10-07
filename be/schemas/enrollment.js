@@ -8,11 +8,12 @@ var connection = mongoose.createConnection(mongo_url);
 
 // Define the class schema
 const enrollmentSchema = new Schema({
-    studentId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the student (from Users collection)
-    classId: { type: Schema.Types.ObjectId, ref: 'Class', required: true }, // Reference to the class (from Classes collection)
-    enrollmentDate: { type: Date, default: Date.now }, // Date when the student enrolled
-    status: { type: String, default: 'enrolled' }, // Status: enrolled, dropped, completed, etc.
+    studentId: { type: String, ref: 'User', required: true },
+    classId: { type: String, ref: 'Class', required: true },
+    enrollmentDate: { type: Date, default: Date.now },
+    status: { type: String, default: 'enrolled' }
 });
+
 
 
 // Export the user model
