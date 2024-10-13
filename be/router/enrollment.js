@@ -32,7 +32,7 @@ router.post('/', meMiddleware, async (req, res) => {
     
     try {
         const { classId } = req.body;
-
+        console.log( classId, userId)
         // Check if the user is already enrolled in the class
         const existingEnrollment = await Enrollment.findOne({
             studentId: userId,
@@ -64,8 +64,8 @@ router.post('/', meMiddleware, async (req, res) => {
     });
 
 // Cancel enrollment in a class
-router.delete('/users/:userId/classes/:classId', authMiddleware, async (req, res) => {
-    console.log("API: Unenroll from Class");
+router.delete('/users/:userId/classes/:classId', meMiddleware, async (req, res) => {
+    console.log("API: Cancel Class");
     try {
         const { userId, classId } = req.params;
         if (userId !== res.locals.user.userId) {

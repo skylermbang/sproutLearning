@@ -6,13 +6,21 @@ const router = express.Router();
 const app = express();
 const port = process.env.PORT || 5002; // Use 5002
 
-// Enable CORS for cookies
-app.use(cors({
-  origin: 'http://localhost:3000',
+require('dotenv').config();
+
+
+console.log("Environment:", process.env.NODE_ENV);
+
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.PROD_FRONTEND_URL
+    : process.env.DEV_FRONTEND_URL,
   credentials: true,
   allowedHeaders: ['Authorization', 'Content-Type'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-}));
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));  // Handle preflight requests for all routes
 
 app.use(express.json());
 app.use(cookieParser()); // Use cookie-parser to read cookies

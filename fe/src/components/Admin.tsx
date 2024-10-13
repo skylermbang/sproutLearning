@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQuery, useMutation, useQueryClient  } from 'react-query';
 import axios from 'axios';
-
+import api from '../api'
+import { addClass } from '../api';
 
 interface colorProps {
     bgColor?: string;
@@ -156,31 +157,35 @@ export default function Component() {
 
   // Fetch Classes API
   const fetchClasses = async () => {
-    const response = await axios.get('http://localhost:5002/api/classes');
+    //const response = await axios.get('http://localhost:5002/api/classes');
+    const response = await api.get('/classes'); // Base URL is automatically used here
+
     return response.data;
   };
 
   // React Query to fetch classes
   const { data, error, isLoading } = useQuery('classes', fetchClasses);
 
-  // Add Class API
-  const addClass = async (newClass: any) => {
-    const response = await axios.post(
-      'http://localhost:5002/api/classes', 
-      newClass, // This is the request body (the data being sent)
-      {
-        withCredentials: true, // Ensure cookies are sent
-      }
-    );
-    return response.data;
-  };
-
+  // // Add Class API
+  // const addClass = async (newClass: any) => {
+  //   const response = await axios.post(
+  //     'http://localhost:5002/api/classes', 
+  //     newClass, // This is the request body (the data being sent)
+  //     {
+  //       withCredentials: true, // Ensure cookies are sent
+  //     }
+  //   );
+  //   return response.data;
+  // };
+ 
   // React Query Mutation to add a class
   const classCreateMutation = useMutation(addClass, {
+
     onSuccess: () => {
       // Invalidate and refetch classes to show the newly added class
       queryClient.invalidateQueries('classes');
     },
+    
   });
 
   // Handle Form Submit

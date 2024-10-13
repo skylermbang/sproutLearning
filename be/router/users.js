@@ -9,64 +9,6 @@ const authMiddleware = require('../middlewares/auth-middleware')
 const meMiddleware=require('../middlewares/me-middleware')
 
 
-
-
-// router.get('/me', async(req, res) => {
-//     //console.log("Headers:", req.headers);
-//     //console.log("Cookies:", req.cookies);
-
-//     // Check if cookies are present
-//     if (!req.cookies || Object.keys(req.cookies).length === 0) {
-//         console.log("No cookies found, trying Authorization header");
-
-//         // If no cookies, check the Authorization header
-//         const authHeader = req.headers.authorization;
-//         if (!authHeader) {
-//             return res.status(401).send({ success: false, msg: 'No token provided' });
-//         }
-
-//         const token = authHeader.split(' ')[1]; // Extract the token from the header
-//         try {
-//             const decoded = jwt.verify(token, process.env.SECRET_KEY || "2aibdoicndie777"); // Verify the token
-//             //console.log("check", decoded)
-//             const user = await User.findOne({ userId: decoded.userId }); // Find user by userId in the database
-
-//             if (user) {
-//                 // Extract the required fields from the user document
-//                 const sendUser = {
-//                   userId: user.userId,
-//                   userNickname: user.userNickname,
-//                   email: user.email,
-//                   admin: user.admin,
-//                 };
-//                 //console.log(sendUser)
-//                 // Attach the selected user fields to req.user
-//                 req.user = sendUser
-//         }
-//     } catch (err) {
-//             return res.status(401).send({ success: false, msg: 'Invalid token' });
-//         }
-
-//         // Return the decoded user info from the token
-//         return res.status(200).send({
-//             success: true,
-//             user: req.user, // The user decoded from the JWT token
-//         });
-
-//     } else {
-//         // If cookies are present, handle user authentication from cookies
-//         const user = req.cookies['userId']; // Example: Assuming user info is stored in a cookie
-
-//         if (user) {
-//             // Send back user data if the cookie exists
-//             return res.status(200).send({ success: true, user });
-//         } else {
-//             return res.status(401).send({ success: false, msg: 'Unauthorized, no user cookie' });
-//         }
-//     }
-// });
-
-
 router.get('/me', async (req, res) => {
     try {
       let token;

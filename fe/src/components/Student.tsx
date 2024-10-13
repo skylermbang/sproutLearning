@@ -1,9 +1,37 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import api from '../api';
+import { useQuery, useMutation, useQueryClient  } from 'react-query';
+import { enrollUserInClass,fetchUserEnrollments,removeUserEnrollment  } from '../api';
 
 
+interface User {
+  admin: boolean;
+  email: string;
+  userId: string;
+  userNickname: string;
+}
 
-
+interface classProps {
+  classId: string;
+  name: string;
+  date: string; // Assuming date comes as a string from the API
+  time: string;
+  location: string;
+  capacity: number;
+  teacher: string;
+  desc: string;
+  status: string; // Assuming status is a string like 'open', 'full', etc.
+  enrolled: number; // Assuming enrolled is a number (optional)
+}
+interface EnrolledClass {
+  classId: string;
+  _id: string;
+  id: number;
+  name: string;
+  startDate: string;
+  status: string;
+}
 
 // Styled Components
 const Container = styled.div`
@@ -106,118 +134,154 @@ const ScrollArea = styled.div`
 `;
 
 export function Student(){
-    
-// Main Component
+  const queryClient = useQueryClient();
 
-  const [classes, setClasses] = useState([
-    { id: 1, name: "Introduction to React", description: "Learn the basics of React", startDate: "2023-09-01", capacity: 30, enrolled: 25, status: "Open" },
-    { id: 2, name: "Advanced JavaScript", description: "Deep dive into advanced JS concepts", startDate: "2023-10-15", capacity: 20, enrolled: 20, status: "Full" },
-    { id: 3, name: "UX Design Basics", description: "Fundamentals of user experience design", startDate: "2023-11-01", capacity: 25, enrolled: 10, status: "Open" },
-    { id: 4, name: "Data Structures and Algorithms", description: "Essential computer science concepts", startDate: "2023-09-15", capacity: 40, enrolled: 35, status: "Open" },
-    { id: 5, name: "Machine Learning Fundamentals", description: "Introduction to ML and AI", startDate: "2023-10-01", capacity: 30, enrolled: 28, status: "Open" },
-  ]);
-
-  const [enrolledClasses, setEnrolledClasses] = useState([
-    { id: 6, name: "Web Development Bootcamp", startDate: "2023-08-01", status: "In Progress" },
-  ]);
-
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const handleEnroll = (classId:number) => {
-    const classToEnroll = classes.find(c => c.id === classId);
-    if (classToEnroll && classToEnroll.enrolled < classToEnroll.capacity) {
-      setClasses(classes.map(c => 
-        c.id === classId ? {...c, enrolled: c.enrolled + 1} : c
-      ));
-      setEnrolledClasses([...enrolledClasses, {
-        id: classId,
-        name: classToEnroll.name,
-        startDate: classToEnroll.startDate,
-        status: "Enrolled"
-      }]);
-    }
+  const fetchClasses = async () => {
+    const response = await api.get('/classes'); // Base URL is automatically used here
+    return response.data;
   };
 
-  const filteredClasses = classes.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+ // React Query to fetch classes
+const { data: classesData, error: classesError, isLoading: classesLoading } = useQuery('classes', fetchClasses);
 
+
+
+const fetchCurrentUser = async (): Promise<User> => {
+  const response = await api.get('/currentUser'); // Replace with your actual endpoint
+  return response.data;
+};
+
+const { data: currentUser, isLoading, error } = useQuery<User>('currentUser', fetchCurrentUser, {
+  enabled: false, // Only retrieve from cache
+});
+
+const userId = currentUser?.userId;
+const { data: enrollmentsData, error: enrollmentsError, isLoading: enrollmentsLoading } = useQuery(
+  ['userEnrollments', userId],
+  () => fetchUserEnrollments(userId as string),
+  {
+    enabled: !!userId, // Only run the query when userId is defined
+  }
+);
+console.log(enrollmentsData)
+
+  // Mutation to handle enrolling in a class
+const enrollMutation = useMutation(enrollUserInClass, {
+  onSuccess: () => {
+      queryClient.invalidateQueries('userEnrollments');
+  },
+  onError: (error) => {
+      console.error('Error enrolling in class:', error);
+  }
+});
+
+  const handleEnrollClick = (classId: string) => {
+    //console.log("class Id is :" ,classId)
+    enrollMutation.mutate(classId);
+  };
+
+  const removeEnrollmentMutation = useMutation((params: { classId: string; userId: string }) => removeUserEnrollment(params), {
+    onSuccess: () => {
+      console.log('Enrollment successfully removed');
+      queryClient.invalidateQueries('userEnrollments'); // Refetch enrollments after removal
+    },
+    onError: (error) => {
+      console.error('Failed to remove enrollment:', error);
+    }
+  });
+
+
+  const handleRemoveClick = (classId: string) => {
+    if (userId) {
+      removeEnrollmentMutation.mutate({ classId, userId });
+    } else {
+      console.error("User ID not found.");
+    }
+  };
   return (
     <Container>
+  <Card>
+    <CardHeader>
+      <CardTitle>Join Classes</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <Table>
+        <thead>
+          <tr>
+            <TableHead>Class Id</TableHead>
+            <TableHead>Class Name</TableHead>
+            <TableHead>Start Date</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Join</TableHead>
+          </tr>
+        </thead>
+        <tbody>
+          {classesData?.classes?.length === 0 ? (
+            <tr>
+              <td colSpan={5}>No classes available</td>
+            </tr>
+          ) : (
+            classesData?.classes?.map((cls: classProps) => (
+              <tr key={cls.classId}>
+                <TableCell>{cls.classId}</TableCell>
+                <TableCell>{cls.name}</TableCell>
+                <TableCell>{new Date(cls.date).toLocaleDateString()}</TableCell>
+                <TableCell>{cls.status}</TableCell>
+                <TableCell>
+                  <Button
+                    onClick={() => handleEnrollClick(cls.classId)}
+                    disabled={enrollmentsData?.enrollment?.some(
+                      (enrolledClass: EnrolledClass) => enrolledClass.classId === cls.classId
+                    )}
+                  >
+                    {enrollmentsData?.enrollment?.some(
+                      (enrolledClass: EnrolledClass) => enrolledClass.classId === cls.classId
+                    )
+                      ? 'Enrolled'
+                      : 'Join'}
+                  </Button>
+                </TableCell>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </Table>
+    </CardContent>
+  </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Available Classes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div>
-            <Input 
-              placeholder="Search classes..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <ScrollArea>
-            <Table>
-              <thead>
-                <TableRow>
-                  <TableHead>Class Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>Availability</TableHead>
-                  <TableHead>Action</TableHead>
-                </TableRow>
-              </thead>
-              <tbody>
-                {filteredClasses.map((cls) => (
-                  <TableRow key={cls.id}>
-                    <TableCell>{cls.name}</TableCell>
-                    <TableCell>{cls.description}</TableCell>
-                    <TableCell>{cls.startDate}</TableCell>
-                    <TableCell>
-                     
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        onClick={() => handleEnroll(cls.id)}
-                        disabled={cls.enrolled >= cls.capacity || enrolledClasses.some(c => c.id === cls.id)}
-                      >
-                        {enrolledClasses.some(c => c.id === cls.id) ? 'Enrolled' : 'Enroll'}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </tbody>
-            </Table>
-          </ScrollArea>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>My Enrolled Classes</CardTitle>
+          <CardTitle>My Classes</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <thead>
-              <TableRow>
-                <TableHead>Class Name</TableHead>
-                <TableHead>Start Date</TableHead>
+              <tr>
+                <TableHead>Class Id</TableHead>
                 <TableHead>Status</TableHead>
-              </TableRow>
+                <TableHead> Join</TableHead>
+              </tr>
             </thead>
             <tbody>
-              {enrolledClasses.map((cls) => (
-                <TableRow key={cls.id}>
-                  <TableCell>{cls.name}</TableCell>
-                  <TableCell>{cls.startDate}</TableCell>
-                  <TableCell>
-                    <Badge variant={cls.status === 'In Progress' ? 'default' : 'secondary'}>
-                      {cls.status}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {enrollmentsData?.enrollment?.length === 0 ? (
+                <tr>
+                  <td colSpan={4}>No classes available</td>
+                </tr>
+              ) : (
+                enrollmentsData?.enrollment?.map((cls: classProps) => (
+                  <tr key={cls.classId}>
+                    <TableCell>{cls.classId}</TableCell>
+                    <TableCell>{cls.status}</TableCell>
+                    <TableCell>
+                    <Button
+    onClick={() => handleRemoveClick(cls.classId)}
+    disabled={removeEnrollmentMutation.isLoading}
+  >
+    {removeEnrollmentMutation.isLoading ? 'Removing...' : 'Remove'}
+  </Button>
+                    </TableCell>
+                  </tr>
+                ))
+              )}
             </tbody>
           </Table>
         </CardContent>

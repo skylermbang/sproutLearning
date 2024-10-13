@@ -3,6 +3,7 @@ import styled from "styled-components";
 import axios from "axios";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import { signIn, signUp } from '../api';
 
 // Styling for the component
 
@@ -135,11 +136,7 @@ export default function Auth() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Mutation for SignUp
-  const signupMutation = useMutation(
-    async (newUser: typeof formData) => {
-      const response = await axios.post('http://localhost:5002/api/users/signUp', newUser);
-      return response.data;
-    },
+  const signupMutation = useMutation(signUp,
     {
       onSuccess: (data) => {
         setSuccessMessage('Account created successfully!');
@@ -152,15 +149,7 @@ export default function Auth() {
   );
 
   // Mutation for SignIn
-  const loginMutation = useMutation(
-    async (loginUser: { userId: string; password: string }) => {
-      const response = await axios.post(
-        'http://localhost:5002/api/users/signIn', 
-        loginUser,
-        { withCredentials: true }  // This ensures cookies are included in the request
-      );
-      return response.data;
-    },
+  const loginMutation = useMutation(signIn, 
     {
       onSuccess: (data) => {
         setSuccessMessage('Login Successful!');
