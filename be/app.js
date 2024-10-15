@@ -11,17 +11,24 @@ require('dotenv').config();
 
 console.log("Environment:", process.env.NODE_ENV);
 
+const allowedOrigins = [
+  process.env.DEV_FRONTEND_URL,
+  process.env.PROD_FRONTEND_URL
+];
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? process.env.PROD_FRONTEND_URL
-    : process.env.DEV_FRONTEND_URL,
+    ? 'https://www.sproutlearning.xyz'
+    : 'http://localhost:3000',
   credentials: true,
   allowedHeaders: ['Authorization', 'Content-Type'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 };
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));  // Handle preflight requests for all routes
 
+// Apply CORS to all routes
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser()); // Use cookie-parser to read cookies
 

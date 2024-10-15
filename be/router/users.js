@@ -108,6 +108,7 @@ router.post('/signUp', async (req, res, next) => {
 
 //Login API - POST
 router.post('/signIn', async (req, res) => {
+    console.log("sign in API")
     try {
         const { userId, password } = req.body
         const user = await User.findOne({ userId })
